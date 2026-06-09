@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
 
  class BookService{
-
     public function getAllBooks()
     {
         return Book::with(['authors', 'category'])->get();
@@ -76,6 +75,7 @@ use Illuminate\Http\UploadedFile;
            $q->whereHas('category',function($CategoryQuery)use($request){
             $CategoryQuery->when('name',"LIKE","%{$request->category}%")->first();
            });
+          
         });
 
         return $query;

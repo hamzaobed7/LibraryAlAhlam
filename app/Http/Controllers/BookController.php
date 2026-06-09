@@ -22,7 +22,12 @@ class BookController extends Controller
     public function index(): JsonResponse
     {
         $books = $this->bookService->getAllBooks();
-        return apiSuccess("تم جلب الكتب بنجاح", $books, 200);
+        if($books){
+            return apiSuccess("تم جلب الكتب بنجاح", $books, 200);
+        }
+        else {
+            return apiFail("Books not found",code:404);
+        }
     }
 
     public function store(BookRequest $request): JsonResponse
