@@ -12,7 +12,7 @@ class Remove_Frome_remainingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**

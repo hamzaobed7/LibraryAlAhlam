@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedInteger('stock')->default(0);
             $table->date('published_at')->nullable();
             $table->string('cover')->nullable();
-            $table->foreignId('category_id')->constrained()->onDelete("cascade")  ;
+            $table->foreignId('category_id')->constrained()->onDelete("cascade");
         });
     }
 

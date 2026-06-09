@@ -56,7 +56,6 @@ class AuthController extends Controller
         if ($request->user() && $request->user()->currentAccessToken()) {
             $request->user()->currentAccessToken()->delete();
         }
-
         return apiSuccess('Logout successful', [], 200);
     }
 

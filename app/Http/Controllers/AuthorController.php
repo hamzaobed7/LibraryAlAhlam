@@ -6,23 +6,25 @@ use App\Http\Requests\AuthorRequest;
 use App\Models\Author;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Services\AuthorService;
 
 class AuthorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+   protected $authorService;
+    public function __construct(AuthorService $authorService){
+        $this->authorService=$authorService;
+    }
     public function index():JsonResponse
     {
-        return apiSuccess("All Author",Author::all(),200);
+        return apiSuccess("All Author",$this->authorService->getAllAuthors(),200);
     }
 
    
     public function store(AuthorRequest $request):JsonResponse
     {
       $data=$request->validated();
-      $author=Author::create($data);
-      return apiSuccess("Author Created",$author,201);
+      $author=$this->authorService->createAuthor($data);
+      return apiSuccess("Author Created",$author,201);  
     }
 
     public function show(Author $author):JsonResponse
@@ -33,14 +35,12 @@ class AuthorController extends Controller
     public function update(AuthorRequest $request,Author $author):JsonResponse
     {
        $data=$request->validated();
-       $author->update($data);
-        return apiSuccess("Updated",$author,200);
+       return apiSuccess("Author Updated",$this->authorService->updateAuthor($author,$data),200);   
     }
 
    
     public function destroy(Author $author):JsonResponse
     {
-         $author->delete();
-         return apiSuccess("deleted");
+         return apiSuccess("Author Deleted",$this->authorService->deleteAuthor($author),200);     
     }
 }

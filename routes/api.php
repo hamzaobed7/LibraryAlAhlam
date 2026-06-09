@@ -14,6 +14,7 @@ Route::get('/user', function (Request $request) {
 Route::apiResource('categories',CategoryController::class);
 Route::apiResource("authors",AuthorController::class);
 Route::apiResource("books",BookController::class);
+Route::get('book-search',[BookController::class,'Search_Book']);
 Route::apiResource("remove_frome_remaining",Remove_Frome_remainingController::class);
 Route::controller(AuthController::class)->group(function () {
     Route::post('/signup', 'signup');
