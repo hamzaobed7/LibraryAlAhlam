@@ -53,7 +53,6 @@ use Illuminate\Http\UploadedFile;
             if ($book->cover) {
                 Storage::delete("book_image/" . $book->cover);
             }
-            
             $book->authors()->detach();
             $book->delete();
         });
@@ -70,7 +69,6 @@ use Illuminate\Http\UploadedFile;
           $query->when($request->filled('ISBN'),function($q)use($request){
            $q->where('ISBN',"%{$request->title}%")->first();
         });
-
            $query->when($request->filled('Categiry'),function($q)use($request){
            $q->whereHas('category',function($CategoryQuery)use($request){
             $CategoryQuery->when('name',"LIKE","%{$request->category}%")->first();
@@ -83,7 +81,9 @@ use Illuminate\Http\UploadedFile;
     }
 
 
-
-
-
+    
 }
+
+
+
+

@@ -49,4 +49,6 @@ public function __construct(CategoryService $categoryService){
         $this->categoryService->deleteCategory($category);
         return apiSuccess("Category deleted successfully",200);
     }
+
+    
 }

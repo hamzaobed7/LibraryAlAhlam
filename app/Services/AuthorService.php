@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Author;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
 
 class AuthorService
 {
@@ -29,4 +30,6 @@ class AuthorService
     {
         return $author->delete();
     }
+
+   
 }
