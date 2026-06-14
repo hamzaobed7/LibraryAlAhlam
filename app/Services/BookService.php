@@ -61,22 +61,55 @@ use Illuminate\Http\UploadedFile;
 
 
     public function SearchBook(Request $request){
-        $query=Book::query();
-        $query->when($request->filled('title'),function($q)use($request){
-            $q->where('title',"LIKE","%{$request->title}%")->first();
-        });
+        $books = Book::query()
+        ->with(['authors', 'category']);
 
-          $query->when($request->filled('ISBN'),function($q)use($request){
-           $q->where('ISBN',"%{$request->title}%")->first();
+    if ($request->filled('title')) {
+        $books->where(
+            'title',
+            'LIKE',
+            '%' . $request->title . '%'
+        );
+    }
+
+    if ($request->filled('author')) {
+        $books->whereHas('authors', function ($query) use ($request) {
+            $query->where(
+                'first_name',
+                'LIKE',
+                '%' . $request->author . '%'
+            );
         });
-           $query->when($request->filled('Categiry'),function($q)use($request){
-           $q->whereHas('category',function($CategoryQuery)use($request){
-            $CategoryQuery->when('name',"LIKE","%{$request->category}%")->first();
-           });
+    }
+
+    if ($request->filled('category')) {
+        $books->whereHas('category', function ($query) use ($request) {
+            $query->where(
+                'name',
+                'LIKE',
+                '%' . $request->category . '%'
+            );
+        });
+    }
+
+    if ($request->filled('from_date')) {
+        $books->whereDate(
+            'created_at',
+            '>=',
+            $request->from_date
+        );
+    }
+
+    if ($request->filled('to_date')) {
+        $books->whereDate(
+            'created_at',
+            '<=',
+            $request->to_date
+        );
+    }
           
-        });
 
-        return $query;
+        return $books;
 
     }
 

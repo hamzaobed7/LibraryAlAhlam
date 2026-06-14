@@ -24,11 +24,10 @@ class AuthRequest extends FormRequest
      */
     public function rules(): array
     {
-        $book=$this->route('user');
+        $user=$this->route('user');
         return [
-            "name" => ['required', 'string'],
-            'email' => ['required',Rule::unique('users' , 'email')->ignore($book?->id)],
-            'password' => ['required', 'string',"min:6"],
+            'email'    => ['required', 'email'],
+            'password' => ['required', 'string', 'min:6'],
         ];
     }
 
@@ -43,7 +42,7 @@ public function failedValidation(Validator $validator)
     public function messages()
     {
         return [
-            'name.required' => 'Name is required',
+          
             'email.required' => 'Email is required',
             'email.unique' => 'Email must be unique',
             'password.required' => 'Password is required',
