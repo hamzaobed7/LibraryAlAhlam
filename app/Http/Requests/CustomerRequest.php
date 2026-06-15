@@ -6,8 +6,10 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Override;
+
 
 class CustomerRequest extends FormRequest
 {
@@ -26,15 +28,15 @@ class CustomerRequest extends FormRequest
      */
    public function rules(): array
 {
-    $customer = $this->route('customer');
     return [
-        'email'    => ['required', 'email', Rule::unique('users', 'email')->ignore($customer?->id)],
+        'email' => 'required|email|unique:users,email',
         'name'     => 'required|min:3|max:30',
         'gender'   => 'required|in:Male,Female',
         'DOB'      => 'required|date',
         'cover'    => 'required|image|max:2000',
         'phone'    => 'required|digits:10',
         'lang'     => 'required',
+        'password' =>'required|min:6'
     ];
 }
 
@@ -66,6 +68,8 @@ class CustomerRequest extends FormRequest
 
             
             'lang.required'    => 'تحديد اللغة مطلوب.',
+             'password.required'=>"كلمة المرور مطلوبة",
+             'password.min'   => 'اقل شي 6',  
 
             'email.unique' => 'Email must be unique',
             'user_id.required' => 'معرف المستخدم مطلوب.',

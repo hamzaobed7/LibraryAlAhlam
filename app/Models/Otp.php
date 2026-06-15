@@ -3,14 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Otp extends Model
 {
     protected $fillable = [
-        'email',
-        'otp_code',
+        'user_id',
+        'otp_hash',
+        'attempts',
         'expires_at',
     ];
 
     public $timestamps = false; 
+
+    public function user():BelongsTo{
+        return $this->belongsTo(User::class);
+    }
 }

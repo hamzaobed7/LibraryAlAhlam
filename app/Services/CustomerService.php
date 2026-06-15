@@ -3,29 +3,41 @@
 namespace App\Services;
 
 use App\Models\Customer;
+use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class CustomerService 
 {
-    public function addCustomer(array $data, ?UploadedFile $cover = null)
-    {
+    
+public function addCustomer(array $data, ?UploadedFile $cover = null)
+{
+    return DB::transaction(function () use ($data, $cover) {
+
         if ($cover) {
             $fileName = $data['phone'] . "." . $cover->extension();
             $cover->storeAs("customer_images", $fileName);
             $data['cover'] = $fileName;
-        } 
+        }
 
-        return Customer::create([
-            'name'    => $data['name'],
-            'gender'  => $data['gender'],
-            'DOB'     => $data['DOB'],
-            'cover'   => $data['cover'] ?? null,
-            'phone'   => $data['phone'],
-            'lang'    => $data['lang'],
-            'user_id' => $data['user_id']
+        $user = User::create([
+            'name'  => $data['name'],
+            'email' => $data['email'],
+            'email_verified_at' => null,
+            'password' => $data['password'],
         ]);
-    }
+
+        return $user->customer()->create([
+            'name'   => $data['name'],
+            'gender' => $data['gender'],
+            'DOB'    => $data['DOB'],
+            'cover'  => $data['cover'] ?? null,
+            'phone'  => $data['phone'],
+            'lang'   => $data['lang'],
+        ]);
+    });
+}
 
     public function updateCustomer(Customer $customer, array $data, ?UploadedFile $cover = null)
     {

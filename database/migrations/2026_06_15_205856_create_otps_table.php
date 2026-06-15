@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('type',['customer','admin'])->default('customer');
+        Schema::create('otps', function (Blueprint $table) {
+            $table->id();
+           $table->foreignId('user_id')->constrained()->onDelete('cascade');
+           $table->string('otp_hash');
+           $table->integer('attempts')->default(0);
+           $table->timestamp("expires_at");
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-       Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('type');
-        });
+        Schema::dropIfExists('otps');
     }
 };

@@ -20,21 +20,27 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::apiResource('categories',CategoryController::class)->only('index','show');
-Route::apiResource('customer',CustomerController::class)->only('index','show');
-Route::apiResource("authors",AuthorController::class)->only('index','show');
-Route::apiResource("books",BookController::class)->only('index','show');
-Route::get('/customer',[CustomerController::class,'index']);
+// Route::apiResource('categories',CategoryController::class)->only('index','show');
+// Route::apiResource("authors",AuthorController::class)->only('index','show');
+// Route::apiResource("books",BookController::class)->only('index','show');
 
 
-Route::middleware(['auth:sanctum','user_type:admin'])->group(function(){
-Route::apiResource('categories',CategoryController::class)->except('index','show');
-Route::apiResource('customer',CustomerController::class)->except('index','show');
-Route::apiResource("authors",AuthorController::class)->except('index','show');
-Route::apiResource("books",BookController::class)->except('index','show');
+
+Route::apiResource('categories',CategoryController::class);
+Route::apiResource("authors",AuthorController::class);
+Route::apiResource("books",BookController::class);
 Route::apiResource("remove_frome_remaining",Remove_Frome_remainingController::class);
 
-});
+
+
+
+// Route::middleware(['auth:sanctum','user_type:admin'])->group(function(){
+// Route::apiResource('categories',CategoryController::class)->except('index','show');
+// Route::apiResource("authors",AuthorController::class)->except('index','show');
+// Route::apiResource("books",BookController::class)->except('index','show');
+// Route::apiResource("remove_frome_remaining",Remove_Frome_remainingController::class);
+
+// });
 
 
 Route::prefix('/Counts')->group(function(){
@@ -63,10 +69,10 @@ $author=Author::has('books',"=",0)->count();
 return $author;
 });
 
-Route::get('/users',function(){
-$user=Customer::all()->count();
-return $user;
+Route::get('users',function(){
+return Customer::count();
 });
+
 
 });
 
@@ -96,7 +102,6 @@ Route::delete('/author',function (Request $request) {
 });
 });
 
-
 Route::get('book-search',[BookController::class,'Search_Book']);
 
 
@@ -116,26 +121,15 @@ return $books;
 
 
 
-Route::get("/customerProfile/{id}",function($id){
-$customer=Customer::where('user_id',$id)->first();
-if($customer){
-    return apiSuccess("haha",$customer);
-}
-else{
-    return apiFail("No customer");
-}
-});
+
 
 
 Route::controller(AuthController::class)->group(function () {
-    Route::post('/signup', 'signup');     
-    Route::post('/verify-otp', 'verify_otp'); 
+    Route::post('/signup', 'signup');
     Route::post('/login', 'login');
-
-        Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/logout', 'logout');
-        Route::get('/user', 'user');
-    });
-});
+    Route::post('/verify_otp', 'verify_otp');
+    Route::middleware('auth:sanctum')->post('/logout', 'logout');
+    Route::middleware('auth:sanctum')->get('/user', 'user');
+}); 
 
 

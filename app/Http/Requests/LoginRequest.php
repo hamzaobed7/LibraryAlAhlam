@@ -7,7 +7,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 use Override;
 
-class SignupRequest extends FormRequest
+class LoginRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,9 +16,10 @@ class SignupRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
-            'email' => 'required|email|unique:users,email',
-        ];
+       return [
+           'email'    => 'required|email|exists:users,email',
+           'password' => 'required|min:6',
+           ];
     }
 
     #[Override]
@@ -27,4 +28,6 @@ class SignupRequest extends FormRequest
         $response = apiFail($validator->errors()->first(), 422);
         throw new HttpResponseException($response);
     }
+
+
 }
