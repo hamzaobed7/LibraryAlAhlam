@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
@@ -39,8 +40,11 @@ public function addCustomer(array $data, ?UploadedFile $cover = null)
     });
 }
 
-    public function updateCustomer(Customer $customer, array $data, ?UploadedFile $cover = null)
+    public function updateCustomer(array $data, ?UploadedFile $cover = null)
     {
+
+        $customer=Auth::user()->customer;
+
         if ($cover) {
             if ($customer->cover) {
                 Storage::delete('customer_images/' . $customer->cover);

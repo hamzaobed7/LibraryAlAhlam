@@ -1,17 +1,21 @@
 <?php
 
+
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\CartController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Book_requestController;
 use App\Http\Controllers\CustomerController;
 use App\Models\Category;
 use App\Models\Book;
 use App\Models\Author;
 use App\Models\Remove_Frome_remaining;
 use App\Http\Controllers\Remove_Frome_remainingController;
+use App\Http\Controllers\UserController;
 use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -20,34 +24,39 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// Route::apiResource('categories',CategoryController::class)->only('index','show');
-// Route::apiResource("authors",AuthorController::class)->only('index','show');
-// Route::apiResource("books",BookController::class)->only('index','show');
+Route::apiResource('categories',CategoryController::class)->only('index','show');
+Route::apiResource("authors",AuthorController::class)->only('index','show');
+Route::apiResource("books",BookController::class)->only('index','show','Search_Book');
+Route::apiResource('/book_request',Book_requestController::class)->only('index','show');
 
 
-
-Route::apiResource('categories',CategoryController::class);
-Route::apiResource("authors",AuthorController::class);
-Route::apiResource("books",BookController::class);
+Route::middleware(['auth:sanctum','user_type:admin'])->group(function(){
+Route::apiResource('categories',CategoryController::class)->except('index','show');
+Route::apiResource("authors",AuthorController::class)->except('index','show');
+Route::apiResource("books",BookController::class)->except('index','show','Search_Book');
 Route::apiResource("remove_frome_remaining",Remove_Frome_remainingController::class);
+Route::patch('/admin/profile',[UserController::class,'updateAdmin']);
 
+});
 
-
-
-// Route::middleware(['auth:sanctum','user_type:admin'])->group(function(){
-// Route::apiResource('categories',CategoryController::class)->except('index','show');
-// Route::apiResource("authors",AuthorController::class)->except('index','show');
-// Route::apiResource("books",BookController::class)->except('index','show');
-// Route::apiResource("remove_frome_remaining",Remove_Frome_remainingController::class);
-
-// });
-
+Route::middleware(['auth:sanctum','user_type:customer'])->group(function () {
+    Route::put('/UpdateProfile', [CustomerController::class, 'update']);
+    Route::get('/MyProfile', [CustomerController::class, 'profile']);
+    Route::apiResource('/book_request',Book_requestController::class)->except('index','show');
+    Route::prefix('cart')->group(function () {
+        Route::get('/', [CartController::class, 'index']);          
+        Route::post('/', [CartController::class, 'store']);        
+        Route::delete('/{id}', [CartController::class, 'destroy']); 
+    });
+});
 
 Route::prefix('/Counts')->group(function(){
 Route::get('/Books',function(){
 $books=Book::all()->count();
 return $books;
 });
+
+
 
 Route::get('/category',function(){
 $category=Category::all()->count();
@@ -118,9 +127,6 @@ Route::get('/treandBook',function(){
 $books=Book::with('category')->take(6)->get();
 return $books;
 });
-
-
-
 
 
 

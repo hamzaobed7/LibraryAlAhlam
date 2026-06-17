@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('customers', function (Blueprint $table) {
+        Schema::create('book_requests', function (Blueprint $table) {
             $table->id()->index();
-            $table->string('name',40);
-            $table->enum('gender',['Male','Female']);
-            $table->date('DOB');
-            $table->char('phone',10);
-            $table->enum('lang',['ar','en']);
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string("book_title");
+            $table->string("author_name");
+            $table->enum("status",['new','processed','read','rejected']);
+            $table->foreignId('customer_id')->constrained();
+            
+
+            $table->timestamps();
         });
     }
 
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('customers');
+        Schema::dropIfExists('book_requests');
     }
 };

@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('customers', function (Blueprint $table) {
-            $table->timestamps();
+        Schema::table('ratings', function (Blueprint $table) {
+            $table->enum('star',['1','2','3','4']);
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('customers', function (Blueprint $table) {
+        Schema::table('ratings', function (Blueprint $table) {
             //
         });
     }

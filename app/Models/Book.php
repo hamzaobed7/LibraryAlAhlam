@@ -37,4 +37,9 @@ class Book extends Model
     {
        return $this->hasMany(Remove_Frome_remaining::class, "book_id");
     }
+
+  public function cartItems():HasMany
+{
+    return $this->hasMany(CartItem::class, 'book_id');
+}
 }
