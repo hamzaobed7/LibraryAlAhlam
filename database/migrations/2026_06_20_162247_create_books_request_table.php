@@ -15,10 +15,8 @@ return new class extends Migration
             $table->id()->index();
             $table->string("book_title");
             $table->string("author_name");
-            $table->enum("status",['new','processed','read','rejected']);
-            $table->foreignId('customer_id')->constrained();
-            
-
+            $table->enum("status",['new','processed','read','rejected'])->default('read');
+            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

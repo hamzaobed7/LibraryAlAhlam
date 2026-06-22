@@ -23,7 +23,10 @@ class Remove_Frome_remainingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+        'book_id'                => 'required|exists:books,id',
+        'type'                   => 'required|string',
+        'quantity'               => 'required|integer|min:1',
+        'remove_from_remaining'  => 'required|boolean',
         ];
     }
 }

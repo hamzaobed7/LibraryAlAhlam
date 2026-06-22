@@ -6,24 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    
     public function up(): void
     {
-        Schema::create('cart_items', function (Blueprint $table) {
+        Schema::create('bill_items', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('bill_id')->constrained()->onDelete('cascade');
             $table->foreignId('book_id')->constrained()->onDelete('cascade');
-            $table->foreignId('customer_id')->constrained()->onDelete("cascade");
+            $table->decimal('rental_price');
+            $table->decimal('deposit_amount');
+            $table->decimal('fine_amount')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+   
     public function down(): void
     {
-        Schema::dropIfExists('cart_items');
+        Schema::dropIfExists('bill_items');
     }
 };

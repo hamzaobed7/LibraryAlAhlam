@@ -32,7 +32,7 @@ class CustomerUpdateRequest extends FormRequest
         'name'     => 'required|min:3|max:30',
         'gender'   => 'required|in:Male,Female',
         'DOB'      => 'required|date',
-        'cover'    => 'required|image|max:2000',
+        'cover' => 'nullable|image|mimes:jpg,jpeg,png,webp',
         'phone'    => 'required|digits:10',
         'lang'     => 'required',
     ];

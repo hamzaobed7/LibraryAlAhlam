@@ -92,6 +92,7 @@ public function verify_otp(VerifyOtpRequest $request): JsonResponse
     $token = $user->createToken('auth_token')->plainTextToken;
     return apiSuccess('Login successful', [
         'access_token' => $token,
+        'type'=>$user->type,
         'token_type' => 'Bearer'
     ], 200);
 }

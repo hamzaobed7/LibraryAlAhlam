@@ -50,5 +50,13 @@ public function __construct(CategoryService $categoryService){
         return apiSuccess("Category deleted successfully",200);
     }
 
-    
+         public function CategoryCount(){
+          $category=Category::all()->count();
+         return $category;
+        }
+
+    public function HasBook(){
+    $category=Category::has('books','>',0)->get();  
+     return $category;
+}    
 }

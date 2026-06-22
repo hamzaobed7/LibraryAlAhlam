@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Category;
 use App\Models\Author;
 use App\Models\RemoveStock;
+use Illuminate\Database\Query\Builder;
+
 class Book extends Model
 {
     use HasFactory;
@@ -27,6 +29,10 @@ class Book extends Model
         return $this->belongsTo(Category::class, "category_id");
     }
 
+    public function scopeAvailable(Builder $q):Builder
+    {
+      return $q->where('stock','>',0);
+    }
     
     public function authors(): BelongsToMany
     {
@@ -42,4 +48,9 @@ class Book extends Model
 {
     return $this->hasMany(CartItem::class, 'book_id');
 }
+
+  public function WaitingLists():HasMany{
+    return $this->hasMany(WatingList::class);
+  }
+
 }

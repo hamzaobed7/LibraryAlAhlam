@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Customer extends Model
 {
@@ -20,6 +21,18 @@ class Customer extends Model
     public function book_request():HasMany{
         return $this->hasMany(Book_request::class);
     }
+     public function WaitingLists():HasMany{
+    return $this->hasMany(WatingList::class);
+  }
+
+
+  public function cart():HasMany{
+    return $this->hasMany(CartItem::class);
+  }
+
+  public function bills():HasMany{
+    return $this->hasMany(Bill::class);
+  }
 
     public function prunable(): Builder
 {

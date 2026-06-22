@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthorRequest;
 use App\Models\Author;
+use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Services\AuthorService;
@@ -44,5 +45,23 @@ class AuthorController extends Controller
          return apiSuccess("Author Deleted",$this->authorService->deleteAuthor($author),200);     
     }
 
+
+    public function AuthorCount(){
+        $author = Author::count();
+        return $author;
+    }
+    public function HasNoBook(){
+    $author=Author::has('books',"=",0)->count();
+    return $author;
+    }
+
+    public function DeleteManyAuthor(Request $request): JsonResponse {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:authors,id'
+        ]);  
+        $this->authorService->deleteMultipleAuthors($request->input('ids'));
+        return apiSuccess("تم الحذف بنجاح", code: 200); 
+    }
    
 }

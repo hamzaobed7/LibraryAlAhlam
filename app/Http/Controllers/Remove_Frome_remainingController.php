@@ -2,53 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Remove_Frome_remainingRequest;
 use Illuminate\Http\Request;
 use Psy\Util\Json;
 use Illuminate\Http\JsonResponse; 
 use App\Models\Remove_Frome_remaining;  
 use App\Models\Book;
+use App\Observers\OpreationOnStockObserver;
+
 class Remove_Frome_remainingController extends Controller
 {
     public function index():JsonResponse
     {
         return apiSuccess("Remove_Frome_remaining ",Remove_Frome_remaining::all(),200);
     }
-public function store(Request $request)
+public function store(Remove_Frome_remainingRequest $request)
 {
-    $data = $request->all();
-
-    $book = Book::findOrFail($data['book_id']);
-
-    if (
-        $data['type'] == 'destroy' &&
-        $data['remove_from_remaining'] &&
-        $book->stock < $data['quantity']
-    ) {
-        return apiFail('Quantity exceeds available stock', 400);
-    }
-
-    if (
-        $data['type'] == 'add' &&
-        $data['remove_from_remaining']
-    ) {
-        $book->increment('stock', $data['quantity']);
-    }
-
-    if (
-        $data['type'] == 'destroy' &&
-        $data['remove_from_remaining']
-    ) {
-        $book->decrement('stock', $data['quantity']);
-    }
-
+    
+    $data = $request->validated();
     Remove_Frome_remaining::create($data);
-
-    return apiSuccess(
-        'Operation created successfully',
-        null,
-        201
-    );
+    return apiSuccess('Operation created successfully', null, 201);
 }
 
+function theOperationAdd (){
+$author=Remove_Frome_remaining::all()->where('type',"LIKE","add")->sum('quantity');
+return $author;
+}
    
 }

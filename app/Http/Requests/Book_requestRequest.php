@@ -6,6 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Auth;
 use Override;
 
 class Book_requestRequest extends FormRequest
@@ -15,7 +16,7 @@ class Book_requestRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return (bool)Auth::user();
     }
 
     /**
@@ -28,9 +29,7 @@ class Book_requestRequest extends FormRequest
         return [
             'book_title'=>['required','max:50','min:3'],
             'author_name'=>['required',"max:30","min:3"],
-            'status'=>['required'],
-            'customer_id'=>'required|exists:customers,id',
-        ];
+            ];
     }
     #[Override]
      protected function failedValidation(Validator $validator)

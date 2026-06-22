@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cart_items', function (Blueprint $table) {
+        Schema::create('bills', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('book_id')->constrained()->onDelete('cascade');
-            $table->foreignId('customer_id')->constrained()->onDelete("cascade");
+            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
+            $table->decimal('total_amount');
+            $table->enum('status',['paid','unpaid','cancelled','pinding_payment'])->default('pinding_payment');
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cart_items');
+        Schema::dropIfExists('bills');
     }
 };

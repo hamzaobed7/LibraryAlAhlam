@@ -69,7 +69,6 @@ class CartController extends Controller
         $cartItem = CartItem::create([
             'customer_id' => $customerId,
             'book_id' => $bookId,
-            'quantity' => 1 
         ]);
 
         return apiSuccess('تم إضافة الكتاب إلى السلة بنجاح.',code:200);
@@ -88,5 +87,13 @@ class CartController extends Controller
         return apiSuccess('تم إزالة الكتاب من السلة.',code:200);
     }
   
+   
+
+     public function CountCart(){
+         $customer=Auth::user()->customer->id;
+         $count=CartItem::where('customer_id',$customer)->count();
+         return $count; 
+
     }
 
+ }

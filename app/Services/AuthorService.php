@@ -31,5 +31,9 @@ class AuthorService
         return $author->delete();
     }
 
+    public function deleteMultipleAuthors(array $ids): void {
+        Author::whereIn('id', $ids)->delete();
+    }
+
    
 }

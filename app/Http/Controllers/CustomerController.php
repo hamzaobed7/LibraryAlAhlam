@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CustomerRequest;
+
 use App\Http\Requests\CustomerUpdateRequest;
+use App\Models\Book_request;
 use App\Models\Customer;
 use App\Services\CustomerService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CustomerController extends Controller
@@ -20,7 +20,7 @@ class CustomerController extends Controller
     }
     public function index():JsonResponse
     {
-        $customers=Customer::all();
+        $customers=Customer::with('user')->get();
         if($customers){
           return apiSuccess("All Customers",$customers,201);
         }
@@ -30,7 +30,15 @@ class CustomerController extends Controller
         
     }
 
-   
+   public function show(Customer $customer ):JsonResponse
+    {
+
+        if (!$customer) {
+             return apiFail("Unauthenticated", code: 401);
+            }
+            $user=$customer->load('user');
+         return apiSuccess("the customer is exist",$user,201);
+    }
 
   
     public function profile():JsonResponse
@@ -40,7 +48,7 @@ class CustomerController extends Controller
 
         if (!$user) {
              return apiFail("Unauthenticated", code: 401);
-                   }
+            }
 
         $customer = $user->customer;
         if($customer){
@@ -73,4 +81,23 @@ class CustomerController extends Controller
       }
        
     }
+
+    function CustomrtCount (){
+        return Customer::count();}
+
+   function AllRequest(){
+    if (Auth::check() && Auth::user()->customer) {
+        
+        $customerId = Auth::user()->customer->id;
+
+        
+        $req = Book_request::where('customer_id', $customerId)
+            ->get();
+
+        return apiSuccess("All Requests", $req, 200); 
+    }
+
+  
+    return apiFail("Unauthorized or Customer profile not found",code:404);
+   }
 }

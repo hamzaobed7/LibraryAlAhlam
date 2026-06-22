@@ -65,6 +65,25 @@ class BookController extends Controller
         return apiFail("Not Found",code:404);
 
     }
+    public function bookCount (){
+        $books=Book::all()->count();
+        return $books;
+    }
+
+    public function trendBook (){
+$books=Book::with('category')->take(6)->get();
+return $books;
+}
+
+public function DeleteManyBook (Request $request) {
+    $request->validate([
+        'ids' => 'required|array',
+        'ids.*' => 'exists:authors,id'
+    ]);
+    $ids = $request->input('ids'); 
+    Book::whereIn('id', $ids)->delete();
+    return apiSuccess("تم الحذف بنجاح", code: 200); 
+}
 
 
 
