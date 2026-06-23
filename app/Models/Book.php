@@ -10,8 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Category;
 use App\Models\Author;
 use App\Models\RemoveStock;
-use Illuminate\Database\Query\Builder;
-
+use Illuminate\Database\Eloquent\Builder;
 class Book extends Model
 {
     use HasFactory;
@@ -52,5 +51,28 @@ class Book extends Model
   public function WaitingLists():HasMany{
     return $this->hasMany(WatingList::class);
   }
+
+  public function scopeFilter(Builder $query, array $filters)
+{
+    return $query->when($filters['title'] ?? null, function ($q, $title) {
+            $q->where('title', 'LIKE', "%{$title}%");
+        })
+        ->when($filters['author'] ?? null, function ($q, $author) {
+            $q->whereHas('authors', function ($authorQuery) use ($author) {
+                $authorQuery->where('first_name', 'LIKE', "%{$author}%");
+            });
+        })
+        ->when($filters['category'] ?? null, function ($q, $category) {
+            $q->whereHas('category', function ($categoryQuery) use ($category) {
+                $categoryQuery->where('name', 'LIKE', "%{$category}%");
+            });
+        })
+        ->when($filters['from_date'] ?? null, function ($q, $fromDate) {
+            $q->whereDate('created_at', '>=', $fromDate);
+        })
+        ->when($filters['to_date'] ?? null, function ($q, $toDate) {
+            $q->whereDate('created_at', '<=', $toDate);
+        });
+}
 
 }

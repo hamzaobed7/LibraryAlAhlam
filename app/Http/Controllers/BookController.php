@@ -56,15 +56,21 @@ class BookController extends Controller
         return apiSuccess("تم حذف الكتاب بنجاح", null, 200);
     }
 
-    public function Search_Book(Request $request):JsonResponse
-    {
-        $book=$this->bookService->SearchBook($request)->get();
-        if($book){
-            return apiSuccess("The book is exist",$book,200);
-        }
-        return apiFail("Not Found",code:404);
+   public function Search_Book(Request $request)
+{
+   
+    $filters = $request->only(['title', 'author', 'category', 'from_date', 'to_date']);
 
-    }
+    $books = Book::with(['authors', 'category'])
+        ->filter($filters) 
+        ->paginate(10);
+
+    return apiSuccess(
+        'تم جلب الكتب بنجاح',
+        BookResource::collection($books),
+        200
+    );
+}
     public function bookCount (){
         $books=Book::all()->count();
         return $books;

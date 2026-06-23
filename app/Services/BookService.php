@@ -60,59 +60,7 @@ use Illuminate\Http\UploadedFile;
     }
 
 
-    public function SearchBook(Request $request){
-        $books = Book::query()
-        ->with(['authors', 'category']);
-
-    if ($request->filled('title')) {
-        $books->where(
-            'title',
-            'LIKE',
-            '%' . $request->title . '%'
-        );
-    }
-
-    if ($request->filled('author')) {
-        $books->whereHas('authors', function ($query) use ($request) {
-            $query->where(
-                'first_name',
-                'LIKE',
-                '%' . $request->author . '%'
-            );
-        });
-    }
-
-    if ($request->filled('category')) {
-        $books->whereHas('category', function ($query) use ($request) {
-            $query->where(
-                'name',
-                'LIKE',
-                '%' . $request->category . '%'
-            );
-        });
-    }
-
-    if ($request->filled('from_date')) {
-        $books->whereDate(
-            'created_at',
-            '>=',
-            $request->from_date
-        );
-    }
-
-    if ($request->filled('to_date')) {
-        $books->whereDate(
-            'created_at',
-            '<=',
-            $request->to_date
-        );
-    }
-          
-
-        return $books;
-
-    }
-
+   
 
     
 }

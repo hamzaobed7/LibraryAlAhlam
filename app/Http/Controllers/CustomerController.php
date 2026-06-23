@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 
 use App\Http\Requests\CustomerUpdateRequest;
+use App\Http\Resources\CustomerInvoice;
+use App\Models\Bill;
 use App\Models\Book_request;
 use App\Models\Customer;
 use App\Services\CustomerService;
@@ -67,9 +69,15 @@ class CustomerController extends Controller
        return apiSuccess("the Updated is complete",$customer,201);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    public function showBill(Bill $bill):JsonResponse{
+     if($bill->customer_id==Auth::user()->customer->id){
+        $user=Auth::user()->customer()->with('bills.bill_items')->get();
+     return apiSuccess("this bill",CustomerInvoice::collection($user),201);
+     }
+     return apiFail("حدث خطأ ما",code:404);
+    }
+
+   
     public function destroy(Customer $customer):JsonResponse
     {
       if($customer){
@@ -100,4 +108,16 @@ class CustomerController extends Controller
   
     return apiFail("Unauthorized or Customer profile not found",code:404);
    }
+
+   function ShowItems(Bill $bill):JsonResponse{
+    
+     $bill_items=$bill->bill_items();
+     $billWithBook=$bill_items->with('book')->get();
+     if($billWithBook){
+        return apiSuccess("this bill items",$billWithBook,201);
+     }
+     return apiFail("no Items",code:404);
+
+   }
+
 }

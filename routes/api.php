@@ -1,6 +1,4 @@
 <?php
-
-
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
@@ -34,18 +32,19 @@ Route::get('/requests',[WatingListController::class,'index']);
 Route::get('/requests/{id}',[WatingListController::class,'show']);
 Route::get('/customers',[CustomerController::class,'index']);
 
-Route::middleware(['auth:sanctum','user_type:admin'])->group(function(){
+Route::middleware(['auth:sanctum','role:admin'])->group(function(){
 Route::apiResource('categories',CategoryController::class)->except('index','show');
 Route::apiResource("authors",AuthorController::class)->except('index','show');
 Route::apiResource("books",BookController::class)->except('index','show');
 Route::apiResource("remove_frome_remaining",Remove_Frome_remainingController::class);
- Route::apiResource('/bill',BillController::class)->except('index',"show")->only('index','show');
+Route::apiResource('/bill',BillController::class);
+Route::get('/ShowItems/{bill}',[CustomerController::class,'ShowItems']);
 Route::patch('/admin/profile',[UserController::class,'updateAdmin']);
 Route::get('/customers/{customer}',[CustomerController::class,'show']);
 Route::patch('/upstatus/{book_request}', [Book_requestController::class, 'updateStatus']);
 });
 
-Route::middleware(['auth:sanctum','user_type:customer'])->group(function () {
+Route::middleware(['auth:sanctum','role:customer'])->group(function () {
     Route::put('/UpdateProfile', [CustomerController::class, 'update']);
     Route::get('/MyProfile', [CustomerController::class, 'profile']);
     Route::apiResource('/book_request',Book_requestController::class)->except('index','show');
@@ -56,8 +55,9 @@ Route::middleware(['auth:sanctum','user_type:customer'])->group(function () {
         Route::delete('/{id}', [CartController::class, 'destroy']); 
         Route::get('/count',[CartController::class,'CountCart']);
     });
+    Route::delete('/deleteBill/{bill}',[BillController::class,'destroy']);
     Route::post('/request-list',[WatingListController::class,'store']);
-
+    Route::get('showinvoice/{bill}',[CustomerController::class,'showBill']);
     Route::get('/requsts',[CustomerController::class,'AllRequest']);
 });
 
@@ -66,12 +66,9 @@ Route::prefix('/Counts')->group(function(){
 Route::get('/Books',[BookController::class,'bookCount']);
 Route::get('/category',[CategoryController::class,'CategoryCount']);
 Route::get('/author',[AuthorController::class,'AuthorCount']);
-
 Route::get('/AddStock',[Remove_Frome_remainingController::class,'theOperationAdd']);
-
 Route::get('/hasNobook',[AuthorController::class,'HasNoBook']);
 Route::get('users',[CustomerController::class,'CustomrtCount']);
-
 });
 
 

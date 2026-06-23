@@ -12,4 +12,8 @@ class BillItem extends Model
     function bill():BelongsTo{
         return $this->belongsTo(Bill::class);
     }
+
+     function book():BelongsTo{
+        return $this->belongsTo(Book::class);
+    }
 }
