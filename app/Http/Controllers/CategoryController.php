@@ -8,6 +8,8 @@ use App\Http\Requests\CategoryRequest;
 use App\Http\Helper\ResponseHelper;
 use App\Services\CategoryService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
+
 class CategoryController extends Controller
 {
     protected CategoryService $categoryService;
@@ -41,9 +43,7 @@ public function __construct(CategoryService $categoryService){
         return apiSuccess("Category updated successfully",$category,200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+  
     public function destroy(Category $category):JsonResponse
     {
         $this->categoryService->deleteCategory($category);
@@ -51,12 +51,11 @@ public function __construct(CategoryService $categoryService){
     }
 
          public function CategoryCount(){
-          $category=Category::all()->count();
-         return $category;
+          
+         return Cache::remember('CountCategory',3600,fn()=>Category::all()->count());
         }
 
     public function HasBook(){
-    $category=Category::has('books','>',0)->get();  
-     return $category;
+     return Cache::remember('HasBook',3600,fn()=>Category::has('books','>',0)->get());
 }    
 }

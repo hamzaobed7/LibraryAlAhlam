@@ -2,21 +2,27 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Book;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class BookRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $book = $this->route('book');
+        if($book){
+            return Auth::user()->can('update',$book);
+        }
+        return Auth::user()->can('create',Book::class);
     }
 
     public function rules(): array
     {
-        $book = $this->route('book'); 
+         $book = $this->route('book');
 
         return [
             'ISBN'                => ['required', 'digits:13', Rule::unique('books', 'ISBN')->ignore($book?->id)],

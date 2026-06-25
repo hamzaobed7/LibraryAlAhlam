@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Services\BookService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Gate;
 
 class BookController extends Controller
 {
@@ -22,18 +25,17 @@ class BookController extends Controller
     public function index(): JsonResponse
     {
         $books = $this->bookService->getAllBooks();
-        if($books){
+        if ($books) {
             return apiSuccess("تم جلب الكتب بنجاح", $books, 200);
-        }
-        else {
-            return apiFail("Books not found",code:404);
+        } else {
+            return apiFail("Books not found", code: 404);
         }
     }
 
     public function store(BookRequest $request): JsonResponse
     {
-        $data = $request->validated(); 
-        $book=$this->bookService->createBook($data, $request->file("cover"));
+        $data = $request->validated();
+        $book = $this->bookService->createBook($data, $request->file("cover"));
         return apiSuccess("تم إنشاء الكتاب بنجاح", $book->load(['authors', 'category']), 201);
     }
 
@@ -46,56 +48,57 @@ class BookController extends Controller
     public function update(BookRequest $request, Book $book): JsonResponse
     {
         $data = $request->validated();
-        $book=$this->bookService->updateBook($book, $data, $request->file("cover"));
+        $book = $this->bookService->updateBook($book, $data, $request->file("cover"));
         return apiSuccess("تم تحديث الكتاب بنجاح", $book->load(['authors', 'category']), 200);
     }
 
     public function destroy(Book $book): JsonResponse
-    {
+    {  
+        if(!Auth::user()->can('delete',$book)){
+            return apiFail("ليس لديك الصلاحية لحذف هذا الكتاب");
+        }
         $this->bookService->deleteBook($book);
         return apiSuccess("تم حذف الكتاب بنجاح", null, 200);
     }
 
-   public function Search_Book(Request $request)
-{
-   
-    $filters = $request->only(['title', 'author', 'category', 'from_date', 'to_date']);
+    public function Search_Book(Request $request)
+    {
+        $filters = $request->only(['title', 'author', 'category', 'from_date', 'to_date']);
+        $books = Book::with(['authors', 'category'])
+            ->filter($filters)
+            ->get();
 
-    $books = Book::with(['authors', 'category'])
-        ->filter($filters) 
-        ->paginate(10);
-
-    return apiSuccess(
-        'تم جلب الكتب بنجاح',
-        BookResource::collection($books),
-        200
-    );
-}
-    public function bookCount (){
-        $books=Book::all()->count();
-        return $books;
+        return apiSuccess(
+            'تم جلب الكتب بنجاح',
+            BookResource::collection($books),
+            200
+        );
+    }
+    public function bookCount()
+    { 
+        return Cache::remember('bookCount',3600,fn()=>Book::all()->count());
     }
 
-    public function trendBook (){
-$books=Book::with('category')->take(6)->get();
-return $books;
-}
+    public function trendBook()
+    {
+        return Cache::remember('trendBook',3600,fn()=>Book::with('category')->take(6)->get());
+    }
 
-public function DeleteManyBook (Request $request) {
-    $request->validate([
-        'ids' => 'required|array',
-        'ids.*' => 'exists:authors,id'
-    ]);
-    $ids = $request->input('ids'); 
-    Book::whereIn('id', $ids)->delete();
-    return apiSuccess("تم الحذف بنجاح", code: 200); 
-}
+    public function DeleteManyBook(Request $request)
+    {
+        $request->validate([
+            'ids'   => 'required|array',
+            'ids.*' => 'exists:books,id'
+        ]);
 
+        $ids = $request->input('ids');
+        $books = Book::whereIn('id', $ids)->get();
+        foreach ($books as $book) {
+            if (!Auth::user()->can('delete', $book))
+                return apiFail("ليس لديك الصلاحيات لحذف هذا الكتاب", Auth::user()->type, code: 403);
+        }
+        Book::whereIn('id', $ids)->delete();
 
-
-
-
-
-
-    
+        return apiSuccess("تم الحذف بنجاح", code: 200);
+    }
 }

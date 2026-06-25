@@ -5,12 +5,13 @@ namespace App\Services;
 use App\Models\Author;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class AuthorService
 {
     public function getAllAuthors(): Collection
     {
-        return Author::all();
+        return Cache::remember('authors', 3600, fn()=>Author::all());
     }
 
     

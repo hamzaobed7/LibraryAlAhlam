@@ -28,7 +28,6 @@ class Book_requestController extends Controller
 public function store(Book_requestRequest $request): JsonResponse
 {
     $data = $request->validated();
-    
     $user = Auth::user();
     if (!$user || !$user->customer) {
         return apiFail("User does not have a customer profile account.", null, 403);

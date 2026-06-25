@@ -6,11 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 
  class BookService{
     public function getAllBooks()
     {
-        return Book::with(['authors', 'category'])->get();
+        return Cache::remember('books',3600,fn()=>Book::with(['authors', 'category'])->get());
     }
     public function createBook(array $data, ?UploadedFile $cover = null)
     {
@@ -50,10 +51,7 @@ use Illuminate\Http\UploadedFile;
     public function deleteBook(Book $book){
     DB::transaction(function () use ($book) {
           
-            if ($book->cover) {
-                Storage::delete("book_image/" . $book->cover);
-            }
-            $book->authors()->detach();
+            
             $book->delete();
         });
 

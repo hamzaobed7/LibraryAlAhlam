@@ -8,6 +8,8 @@ use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Services\AuthorService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class AuthorController extends Controller
 {
@@ -17,7 +19,9 @@ class AuthorController extends Controller
     }
     public function index():JsonResponse
     {
-        return apiSuccess("All Author",$this->authorService->getAllAuthors(),200);
+        
+      $authors= $this->authorService->getAllAuthors();
+      return apiSuccess("تم جلب جميع المؤلفين",$authors,200);
     }
 
    
@@ -41,8 +45,12 @@ class AuthorController extends Controller
 
    
     public function destroy(Author $author):JsonResponse
-    {
+    {   
+           if(Auth::user()->can('delete',$author)){
+
          return apiSuccess("Author Deleted",$this->authorService->deleteAuthor($author),200);     
+           }
+           return apiFail("لا تملك الصلاحيات لحذفه",code:403);
     }
 
 
@@ -60,6 +68,7 @@ class AuthorController extends Controller
             'ids' => 'required|array',
             'ids.*' => 'exists:authors,id'
         ]);  
+        
         $this->authorService->deleteMultipleAuthors($request->input('ids'));
         return apiSuccess("تم الحذف بنجاح", code: 200); 
     }

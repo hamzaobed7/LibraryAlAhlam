@@ -45,31 +45,38 @@ class CustomerController extends Controller
   
     public function profile():JsonResponse
     {
-        $customer=Auth::user()->customer;
+         $customer=Auth::user()->customer;
+       if(Auth::user()->can('view',$customer)){
+        
         $user = Auth::user();
-
         if (!$user) {
              return apiFail("Unauthenticated", code: 401);
             }
 
-        $customer = $user->customer;
         if($customer){
             return apiSuccess("the customer is exist",$customer,201);
         }
         else{
              return apiFail("the customer is not found",code:404);
         }
+       }
+       return apiFail("لايمكنك مشاهدة البروفايل");
     }
 
     
     public function update(CustomerUpdateRequest $request):JsonResponse
     {
         $data=$request->validated();
-       $customer=$this->custoemrService->updateCustomer($data,$request->file('cover'));
+        $customer=Auth::user()->customer;
+       if(Auth::user()->can('update',$customer)){
+        $customer=$this->custoemrService->updateCustomer($data,$request->file('cover'));
        return apiSuccess("the Updated is complete",$customer,201);
+       }
+       return apiFail("لا يمكنك تعديل الحساب");
     }
 
     public function showBill(Bill $bill):JsonResponse{
+        
      if($bill->customer_id==Auth::user()->customer->id){
         $user=Auth::user()->customer()->with('bills.bill_items')->get();
      return apiSuccess("this bill",CustomerInvoice::collection($user),201);

@@ -8,7 +8,7 @@ use App\Models\Book;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class BillServices 
+class BillServices
 {
     public function checkout()
     {
@@ -22,14 +22,14 @@ class BillServices
         if (!$cart || $cart->isEmpty()) {
             return apiFail("السلة فارغة", code: 404);
         }
-          
-        $oldBill=Bill::where('customer_id', $customer->id)->where('status',"LIKE","%unpaid%")->orWhere('status',"LIKE","%pinding_payment%")->first();
-        if($oldBill){
-            return apiFail("You Have Old Bill is not finish",code:400);
+
+        $oldBill = Bill::where('customer_id', $customer->id)->where('status', "LIKE", "%unpaid%")->orWhere('status', "LIKE", "%pinding_payment%")->first();
+        if ($oldBill) {
+            return apiFail("You Have Old Bill is not finish", code: 400);
         }
 
+
         return DB::transaction(function () use ($customer, $cart) {
-            
             $totalAmount = 0;
             $itemsToCreate = [];
 
@@ -47,7 +47,7 @@ class BillServices
                     'rental_price'   => $item->book->rental_price,
                     'deposit_amount' => $item->book->deposit,
                     'fine_amount'    => 0
-                ];                
+                ];
             }
 
             $bill = $customer->bills()->create([
@@ -59,7 +59,6 @@ class BillServices
                 BillItem::create($itemData);
             }
             $customer->cart()->delete();
-        
         });
     }
 }
