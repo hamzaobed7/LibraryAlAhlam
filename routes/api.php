@@ -33,7 +33,7 @@ Route::get('/requests', [WatingListController::class, 'index']);
 Route::get('/requests/{id}', [WatingListController::class, 'show']);
 Route::get('/customers', [CustomerController::class, 'index']);
 
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+// Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::apiResource('categories', CategoryController::class)->except('index', 'show');
     Route::apiResource("authors", AuthorController::class)->except('index', 'show');
     Route::apiResource("books", BookController::class)->except('index', 'show');
@@ -47,7 +47,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::delete('/author', [AuthorController::class, 'DeleteManyAuthor']);
         Route::delete('/books', [BookController::class, 'DeleteManyBook']);
     });
-});
+// });
 
 Route::middleware(['auth:sanctum', 'role:customer'])->group(function () {
     Route::put('/UpdateProfile', [CustomerController::class, 'update']);
