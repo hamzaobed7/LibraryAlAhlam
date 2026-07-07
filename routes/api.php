@@ -32,14 +32,15 @@ Route::apiResource('/book_request', Book_requestController::class)->only('index'
 Route::get('/requests', [WatingListController::class, 'index']);
 Route::get('/requests/{id}', [WatingListController::class, 'show']);
 Route::get('/customers', [CustomerController::class, 'index']);
+Route::get('/ShowItems/{bill}', [CustomerController::class, 'ShowItems']);
 
-// Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::apiResource('categories', CategoryController::class)->except('index', 'show');
     Route::apiResource("authors", AuthorController::class)->except('index', 'show');
     Route::apiResource("books", BookController::class)->except('index', 'show');
     Route::apiResource("remove_frome_remaining", Remove_Frome_remainingController::class);
     Route::apiResource('/bill', BillController::class);
-    Route::get('/ShowItems/{bill}', [CustomerController::class, 'ShowItems']);
     Route::patch('/admin/profile', [UserController::class, 'updateAdmin']);
     Route::get('/customers/{customer}', [CustomerController::class, 'show']);
     Route::patch('/upstatus/{book_request}', [Book_requestController::class, 'updateStatus']);
@@ -47,13 +48,15 @@ Route::get('/customers', [CustomerController::class, 'index']);
         Route::delete('/author', [AuthorController::class, 'DeleteManyAuthor']);
         Route::delete('/books', [BookController::class, 'DeleteManyBook']);
     });
-// });
+});
 
 Route::middleware(['auth:sanctum', 'role:customer'])->group(function () {
-    Route::put('/UpdateProfile', [CustomerController::class, 'update']);
-    Route::get('/MyProfile', [CustomerController::class, 'profile']);
     Route::apiResource('/book_request', Book_requestController::class)->except('index', 'show');
     Route::apiResource('/bill', BillController::class)->except('index', "show");
+    Route::put('/UpdateProfile', [CustomerController::class, 'update']);
+    Route::get('/MyProfile', [CustomerController::class, 'profile']);
+    Route::patch("/statusToCancel/{bill}", [BillController::class, 'updateStatusToCancel']);
+    Route::get('/showMyBill', [CustomerController::class, 'showMyBill']);
     Route::prefix('cart')->group(function () {
         Route::get('/', [CartController::class, 'index']);
         Route::post('/', [CartController::class, 'store']);

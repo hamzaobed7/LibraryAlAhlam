@@ -84,6 +84,20 @@ class CustomerController extends Controller
      return apiFail("حدث خطأ ما",code:404);
     }
 
+
+    public function showMyBill():JsonResponse{
+      $customer=Auth::user()->customer;   
+        if(!$customer){
+            return apiFail("Unauthenticated", code: 401);
+        }
+        $bills=$customer->bills()->with('bill_items')->get();
+        if($bills){
+            return apiSuccess("All Bills",$bills,201);
+        }
+        return apiFail("No Bills Found",code:404);
+    }
+
+
    
     public function destroy(Customer $customer):JsonResponse
     {

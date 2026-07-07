@@ -11,9 +11,7 @@ use Illuminate\Validation\Rule;
 
 class AuthorRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    
     public function authorize(): bool
     {
         $authorId = $this->route('author');

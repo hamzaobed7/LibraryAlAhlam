@@ -32,9 +32,9 @@ class AuthController extends Controller
     {
         $data = $request->validated();
         $customer = $this->customerService->addCustomer($data, $request->file('cover'));
-        $user=$customer->user;
+        $user = $customer->user;
         $otp_code = rand(100000, 999999);
-        CreateOtp::dispatch($user,$otp_code);
+        CreateOtp::dispatch($user, $otp_code);
         Otp::where('user_id', $customer->user_id)->delete();
         Otp::create([
             'user_id' => $customer->user_id,
@@ -72,7 +72,7 @@ class AuthController extends Controller
             'email_verified_at' => now()
         ]);
         $otp->delete();
-        ActivateAccount::dispatch($user) ;
+        ActivateAccount::dispatch($user);
         return apiSuccess("تم تفعيل الحساب بنجاح");
     }
 
@@ -87,12 +87,13 @@ class AuthController extends Controller
         if (!$user->email_verified_at) {
             return apiFail('The email is not activated', [], 401);
         }
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // $token = $user->createToken('auth_token')->plainTextToken;
         AuthonticationEvent::dispatch($user);
+        //New
+        Auth::login($user);
+        $request->session()->regenerate();
         return apiSuccess('Login successful', [
-            'access_token' => $token,
-            'type' => $user->type,
-            'token_type' => 'Bearer'
+            'user' => $user,
         ], 200);
     }
 
@@ -109,11 +110,16 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        if ($request->user() && $request->user()->currentAccessToken()) {
-            $request->user()->currentAccessToken()->delete();
-        }
-       
-        
-        return apiSuccess('Logout successful', [], 200);
+        // if ($request->user() && $request->user()->currentAccessToken()) {
+        //     $request->user()->currentAccessToken()->delete();
+        // }
+        // return apiSuccess('Logout successful', [], 200);
+
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return apiSuccess('Logout successful');
     }
 }

@@ -34,16 +34,26 @@ class BillController extends Controller
 }
 
 
-    public function show(Bill $bill)
+    public function show(Bill $bill):JsonResponse
     {
+        $customer = Auth::user()->customer->bills()->whereIn($bill->id, Auth::user()->customer->bills->pluck('id'))->first();
+        if (!$customer) {
+            return apiFail("Unauthenticated", code: 401);}
         return apiSuccess("this Bill",$bill->load(['customer','bill_items']),201);
-    }
+    }   
+   
 
    
     
-    public function update(Request $request, string $id)
+    public function updateStatusToCancel(Bill $bill): JsonResponse
     {
-        //
+        $customer = Auth::user()->customer;
+        $bill=$customer->bills()->where('id', $bill->id)->first();
+        if (!$customer) {
+            return apiFail("Unauthenticated", code: 401);}
+        $bill->status="cancelled";
+        $bill->save();
+        return apiSuccess("the bill is updated",$bill,201);
     }
     public function destroy(Bill $bill){
         $bill->delete();
