@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('books', function (Blueprint $table) {
-            // نقوم هنا بالتعديل على العمود الموجود مسبقاً بدلاً من إضافته من جديد
             $table->unsignedInteger('stock')->default(0)->nullable()->change();
         });
     }

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Bill;
 use App\Models\BillItem;
 use App\Models\Book;
+use App\Models\Rental;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -16,9 +17,7 @@ class BillServices
         if (!$customer) {
             return apiFail("المستخدم غير موجود كزبون في النظام", code: 404);
         }
-
         $cart = $customer->cart()->with('book')->get();
-
         if (!$cart || $cart->isEmpty()) {
             return apiFail("السلة فارغة", code: 404);
         }
@@ -27,8 +26,12 @@ class BillServices
         if ($oldBill) {
             return apiFail("You Have Old Bill is not finish", code: 400);
         }
+ 
+        $countOfRentals = Rental::where('customer_id', $customer->id)->where('status', 'borrowed')->count();
 
-
+        if ($countOfRentals >= 3) {
+            return apiFail("You Have 3 Rentals is not finish", code: 400);
+        }
         return DB::transaction(function () use ($customer, $cart) {
             $totalAmount = 0;
             $itemsToCreate = [];

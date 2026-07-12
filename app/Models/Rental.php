@@ -13,8 +13,11 @@ class Rental extends Model
     protected $table = 'rentals';
 
     protected $fillable = [
+        'bill_item_id',
         'customer_id',
         'book_id',
+        'due_date',
+        'returned_at',
         'status',
        
     ];

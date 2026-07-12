@@ -5,21 +5,17 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Services\PaypalService;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\Book_requestController;
 use App\Http\Controllers\CustomerController;
-use App\Models\Category;
-use App\Models\Book;
-use App\Models\Author;
-use App\Models\Remove_Frome_remaining;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Remove_Frome_remainingController;
+use App\Http\Controllers\RentalController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WatingListController;
-use App\Models\Customer;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -41,6 +37,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::apiResource("books", BookController::class)->except('index', 'show');
     Route::apiResource("remove_frome_remaining", Remove_Frome_remainingController::class);
     Route::apiResource('/bill', BillController::class);
+    Route::get('RentalsInfo',[RentalController::class, 'index']);
     Route::patch('/admin/profile', [UserController::class, 'updateAdmin']);
     Route::get('/customers/{customer}', [CustomerController::class, 'show']);
     Route::patch('/upstatus/{book_request}', [Book_requestController::class, 'updateStatus']);
@@ -57,6 +54,9 @@ Route::middleware(['auth:sanctum', 'role:customer'])->group(function () {
     Route::get('/MyProfile', [CustomerController::class, 'profile']);
     Route::patch("/statusToCancel/{bill}", [BillController::class, 'updateStatusToCancel']);
     Route::get('/showMyBill', [CustomerController::class, 'showMyBill']);
+    Route::post('/payment', [PaymentController::class, 'store']);
+    Route::put('/payment/capture', [PaymentController::class, 'capturePayment']); 
+    Route::get('MyBook',[RentalController::class, 'MyRentalsBook']);
     Route::prefix('cart')->group(function () {
         Route::get('/', [CartController::class, 'index']);
         Route::post('/', [CartController::class, 'store']);
@@ -77,9 +77,16 @@ Route::prefix('/Counts')->group(function () {
     Route::get('/AddStock', [Remove_Frome_remainingController::class, 'theOperationAdd']);
     Route::get('/hasNobook', [AuthorController::class, 'HasNoBook']);
     Route::get('users', [CustomerController::class, 'CustomrtCount']);
+    Route::get('rentals', [RentalController::class, 'CountOfRentals']);
+    Route::get('CustomerHasRental',[RentalController::class, 'CountOfUserRentals']);
 });
 
 
+// Route::get('/paypal/token', function (PaypalService $paypal) {
+//     return response()->json([
+//         'token' => $paypal->getAccessToken()
+//     ]);
+// });
 
 
 

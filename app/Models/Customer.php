@@ -25,7 +25,9 @@ class Customer extends Model
     return $this->hasMany(WatingList::class);
   }
 
-
+public function rentals():HasMany{
+    return $this->hasMany(Rental::class);
+  }
   public function cart():HasMany{
     return $this->hasMany(CartItem::class);
   }

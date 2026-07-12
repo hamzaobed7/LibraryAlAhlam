@@ -7,16 +7,15 @@ use App\Events\AuthonticationEvent;
 use App\Events\CreateOtp;
 use App\Models\User;
 use App\Models\Otp;
-use App\Notifications\OtpNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-
 use App\Http\Requests\CustomerRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\VerifyOtpRequest;
 use App\Services\CustomerService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -31,18 +30,27 @@ class AuthController extends Controller
     public function signup(CustomerRequest $request)
     {
         $data = $request->validated();
-        $customer = $this->customerService->addCustomer($data, $request->file('cover'));
-        $user = $customer->user;
+
         $otp_code = rand(100000, 999999);
-        CreateOtp::dispatch($user, $otp_code);
-        Otp::where('user_id', $customer->user_id)->delete();
-        Otp::create([
-            'user_id' => $customer->user_id,
-            'otp_hash' => Hash::make($otp_code),
-            'expires_at' => now()->addMinute(5),
-            'attempts' => 0
-        ]);
-        return apiSuccess("تم انشاء زبون غير مفعل", $customer, code: 201);
+        $result = DB::transaction(function () use ($otp_code, $data, $request) {
+            $customer = $this->customerService->addCustomer($data, $request->file('cover'));
+            $user = $customer->user;
+
+            Otp::where('user_id', $customer->user_id)->delete();
+            Otp::create([
+                'user_id' => $customer->user_id,
+                'otp_hash' => Hash::make($otp_code),
+                'expires_at' => now()->addMinute(5),
+                'attempts' => 0
+            ]);
+            CreateOtp::dispatch($user, $otp_code);
+            return $customer;
+        });
+        if ($result) {
+            return apiSuccess("تم انشاء زبون غير مفعل",  $result, code: 201);
+        } else {
+            return apiFail("حدث خطأ أثناء إنشاء الحساب", [], 500);
+        }
     }
 
     public function verify_otp(VerifyOtpRequest $request): JsonResponse

@@ -36,7 +36,7 @@ class BookController extends Controller
     {
         $data = $request->validated();
         $book = $this->bookService->createBook($data, $request->file("cover"));
-        return apiSuccess("تم إنشاء الكتاب بنجاح", $book->load(['authors', 'category']), 201);
+        return apiSuccess("تم إنشاء الكتاب بنجاح", nullValue, 201);
     }
 
     public function show(Book $book): JsonResponse
@@ -53,8 +53,8 @@ class BookController extends Controller
     }
 
     public function destroy(Book $book): JsonResponse
-    {  
-        if(!Auth::user()->can('delete',$book)){
+    {
+        if (!Auth::user()->can('delete', $book)) {
             return apiFail("ليس لديك الصلاحية لحذف هذا الكتاب");
         }
         $this->bookService->deleteBook($book);
@@ -75,13 +75,13 @@ class BookController extends Controller
         );
     }
     public function bookCount()
-    { 
-        return Cache::remember('bookCount',3600,fn()=>Book::all()->count());
+    {
+        return Cache::remember('bookCount', 3600, fn() => Book::count());
     }
 
     public function trendBook()
     {
-        return Cache::remember('trendBook',3600,fn()=>Book::with('category')->take(6)->get());
+        return Cache::remember('trendBook', 3600, fn() => Book::with('category')->take(6)->get());
     }
 
     public function DeleteManyBook(Request $request)
