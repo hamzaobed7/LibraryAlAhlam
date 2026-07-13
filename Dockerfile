@@ -1,6 +1,6 @@
 FROM php:8.4-apache
 
-# 1. تثبيت الحزم الأساسية للنظام
+# 1. تثبيت الحزم الأساسية للنظام (تم إضافة libpq-dev هنا للـ PostgreSQL)
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
@@ -9,11 +9,12 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     libzip-dev \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. تثبيت إضافات PHP المحتاجة لـ Laravel
+# 2. تثبيت إضافات PHP (تم إضافة pdo_pgsql هنا)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql gd zip
+    && docker-php-ext-install pdo pdo_mysql pdo_pgsql gd zip
 
 # 3. توجيه سيرفر Apache إلى مجلد public الخاص بـ Laravel
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
@@ -36,5 +37,5 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 EXPOSE 80
 
-# 🚀 السحر هنا: تشغيل الميغريشن تلقائياً فوراً عند إقلاع السيرفر ثم تشغيل Apache
+# تشغيل الميغريشن تلقائياً فوراً عند إقلاع السيرفر ثم تشغيل Apache
 CMD sh -c "php artisan migrate --force && apache2-foreground"
